@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: evoucher_db
+    restart: always
+    environment:
+      POSTGRES_USER: evoucher_user
+      POSTGRES_PASSWORD: evoucher_pass
+      POSTGRES_DB: evoucher_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: evoucher_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://evoucher_user:evoucher_pass@postgres:5432/evoucher_db
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

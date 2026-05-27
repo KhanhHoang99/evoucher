@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+  CASHIER
+}
+
+enum VoucherStatus {
+  ACTIVE
+  EXPIRED
+  DISABLED
+  USED
+}
+
+model Partner {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(100)
+  note      String?  @db.VarChar(200)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  vouchers Voucher[]
+
+  @@map("partners")
+}
+
+model Store {
+  id        String   @id @default(uuid())
+  storeCode String   @unique @db.VarChar(30)
+  name      String   @db.VarChar(100)
+  location  String?  @db.VarChar(200)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  users        User[]
+  transactions Transaction[]
+
+  @@map("stores")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique @db.VarChar(50)
+  passwordHash String   @db.VarChar(255)
+  role         Role     @default(CASHIER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  storeId String?
+  store   Store?  @relation(fields: [storeId], references: [id])
+
+  @@map("users")
+}
+
+model Voucher {
+  id            String        @id @default(uuid())
+  voucherCode   String        @unique @db.VarChar(30)
+  holderName    String        @db.VarChar(100)
+  holderPhone   String?       @db.VarChar(20)
+  initialAmount Int
+  balance       Int
+  status        VoucherStatus @default(ACTIVE)
+  expiresAt     DateTime
+  createdAt     DateTime      @default(now())
+
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id])
+
+  transactions Transaction[]
+
+  @@map("vouchers")
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  orderCode     String   @unique @db.VarChar(30)
+  amount        Int
+  balanceBefore Int
+  balanceAfter  Int
+  createdAt     DateTime @default(now())
+
+  voucherId String
+  voucher   Voucher @relation(fields: [voucherId], references: [id])
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  @@map("transactions")
+}
