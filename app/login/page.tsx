@@ -42,7 +42,7 @@ export default function LoginPage() {
       if (data.user.role === 'CASHIER') {
         router.push('/cashier')
       } else if (data.user.role === 'ADMIN') {
-        router.push('/admin/import') // Tạm thời redirect vào import, sau có dashboard thì đổi lại
+        router.push('/admin/dashboard') // vào dashboard
       } else {
         router.push('/viewer')
       }

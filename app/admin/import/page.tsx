@@ -66,8 +66,8 @@ export default function AdminVoucherImportPage() {
       <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
         
         <div className="bg-orange-500 p-6 text-white">
-          <h1 className="text-xl font-bold">Hệ thống Quản trị eVoucher</h1>
-          <p className="text-orange-100 text-sm mt-1">Phát hành & Import thẻ B2B hàng loạt từ Excel</p>
+          <h1 className="text-xl font-bold">Tạo Thẻ Voucher</h1>
+          <p className="text-orange-100 text-sm mt-1">Phát hành & Import thẻ voucher hàng loạt từ Excel</p>
         </div>
 
         <form onSubmit={handleUpload} className="p-6 space-y-6">
