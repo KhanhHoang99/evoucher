@@ -36,11 +36,17 @@ export default function LoginPage() {
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
 
+      // Lưu token vào cookie để middleware đọc được
+      document.cookie = `token=${data.token}; path=/; max-age=28800`
+
       if (data.user.role === 'CASHIER') {
         router.push('/cashier')
+      } else if (data.user.role === 'ADMIN') {
+        router.push('/admin/import') // Tạm thời redirect vào import, sau có dashboard thì đổi lại
       } else {
-        router.push('/dashboard')
+        router.push('/viewer')
       }
+
     } catch {
       setError('Lỗi kết nối server')
     } finally {
@@ -114,7 +120,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          © 2025 BQ — Hệ thống quản lý thẻ nội bộ
+          © 2026 BQ — Hệ thống quản lý thẻ nội bộ
         </p>
       </div>
     </div>
