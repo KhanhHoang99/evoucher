@@ -10,22 +10,33 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") ?? "1");
     const limit = parseInt(searchParams.get("limit") ?? "20");
     const voucherCode = searchParams.get("voucherCode") ?? "";
+    const dateFrom = searchParams.get("dateFrom") ?? "";
+    const dateTo = searchParams.get("dateTo") ?? "";
     const skip = (page - 1) * limit;
 
-    
-    // ADMIN và VIEWER xem tất cả
     let whereClause: any = {};
 
     if (voucherCode) {
-      // Khi lọc theo thẻ cụ thể → cho phép xem toàn bộ lịch sử
-      // kể cả CASHIER, để thấy khách đã mua ở cửa hàng nào khác
+      // Tìm theo thẻ → xem toàn hệ thống NHƯNG vẫn giữ filter ngày
       whereClause.voucher = {
-        voucherCode: { equals: voucherCode, mode: "insensitive" }
+        voucherCode: { contains: voucherCode, mode: "insensitive" }
       };
+      // Không xóa storeId ở đây, chỉ bỏ giới hạn storeId thôi
     } else {
-      // Không lọc theo thẻ → CASHIER chỉ xem cửa hàng mình
+      // Không tìm theo thẻ → CASHIER chỉ xem cửa hàng mình
       if (role === "CASHIER" && storeId) {
         whereClause.storeId = storeId;
+      }
+    }
+
+    // Lọc theo ngày
+    if (dateFrom || dateTo) {
+      whereClause.createdAt = {};
+      if (dateFrom) whereClause.createdAt.gte = new Date(dateFrom);
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        whereClause.createdAt.lte = to;
       }
     }
 
@@ -52,6 +63,12 @@ export async function GET(req: NextRequest) {
       prisma.transaction.count({ where: whereClause }),
     ]);
 
+    // Tính tổng doanh thu
+    const totalRevenue = await prisma.transaction.aggregate({
+      where: whereClause,
+      _sum: { amount: true },
+    });
+
     // Tính thống kê nếu lọc theo voucherCode
     let stats = null;
     if (voucherCode) {
@@ -72,6 +89,7 @@ export async function GET(req: NextRequest) {
         page, limit, total,
         totalPages: Math.ceil(total / limit),
       },
+      totalRevenue: totalRevenue._sum.amount ?? 0,
     });
   } catch {
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });

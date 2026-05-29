@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface HistoryLog {
   id: string         // hoặc orderCode
@@ -268,28 +269,35 @@ export default function CashierPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f8f7f5', color: '#1a1a1a', fontFamily: 'system-ui, sans-serif' }}>
       
-      {/* Header Cam Đỏ */}
-      <div style={{ background: 'white', borderBottom: '1px solid #eee', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#E8440A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'white', fontWeight: 900, fontSize: 13 }}>BQ</span>
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a1a' }}>Thanh Toán Thẻ</div>
-            <div style={{ fontSize: 12, color: '#999' }}>{user?.storeName || 'Cửa hàng'}</div>
-          </div>
-        </div>
-        <button 
-                onClick={() => { 
-                  localStorage.clear()
-                  document.cookie = 'token=; path=/; max-age=0'
-                  router.push('/login') 
-                }} 
-                style={{ fontSize: 13, color: '#999', border: 'none', background: 'none', cursor: 'pointer' }}
-        >
-          Đăng xuất
-        </button>
-      </div>
+      {/* Header */}
+<div style={{ background: 'white', borderBottom: '1px solid #eee', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  
+  {/* Logo + tên cửa hàng */}
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ width: 36, height: 36, borderRadius: 10, background: '#E8440A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ color: 'white', fontWeight: 900, fontSize: 13 }}>BQ</span>
+    </div>
+    <div>
+      <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a1a' }}>Thanh Toán Thẻ</div>
+      <div style={{ fontSize: 12, color: '#999' }}>{user?.storeName || 'Cửa hàng'}</div>
+    </div>
+  </div>
+
+  {/* Nút phải */}
+  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+    <Link href="/cashier/history" style={{ fontSize: 13, color: '#666', fontWeight: 500, textDecoration: 'none' }}>
+      📋 Lịch sử
+    </Link>
+    <button onClick={() => {
+      localStorage.clear()
+      document.cookie = 'token=; path=/; max-age=0'
+      router.push('/login')
+    }} style={{ fontSize: 13, color: '#999', border: 'none', background: 'none', cursor: 'pointer' }}>
+      Đăng xuất
+    </button>
+  </div>
+
+</div>
 
       <div style={{ maxWidth: 540, margin: '0 auto', padding: 24 }}>
 
