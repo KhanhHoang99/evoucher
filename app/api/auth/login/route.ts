@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
+    console.error("CHI TIẾT LỖI LOGIN:", error); // dòng này để xem lỗi ở Terminal
     return NextResponse.json(
       { error: "Lỗi server" },
       { status: 500 }

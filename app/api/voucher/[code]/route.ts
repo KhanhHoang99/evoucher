@@ -24,7 +24,11 @@ export async function GET(
 
     if (voucher.status === "DISABLED") {
       return NextResponse.json(
-        { error: "Thẻ đã bị vô hiệu hóa" },
+        { error: "Thẻ đã bị vô hiệu hóa",
+          expiresAt: voucher.expiresAt,
+          holderName: voucher.holderName, 
+        },
+        
         { status: 400 }
       );
     }
@@ -38,7 +42,10 @@ export async function GET(
 
     if (voucher.status === "EXPIRED" || voucher.expiresAt < new Date()) {
       return NextResponse.json(
-        { error: "Thẻ đã hết hạn" },
+        { error: "Thẻ đã hết hạn",
+          expiresAt: voucher.expiresAt,  // ← thêm
+          holderName: voucher.holderName, // ← thêm
+        },
         { status: 400 }
       );
     }
