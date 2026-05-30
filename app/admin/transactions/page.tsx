@@ -63,7 +63,7 @@ export default function TransactionsPage() {
     <div style={{ padding: 32 }}>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Lịch sử giao dịch</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Lịch Sử Giao Dịch</h1>
         <p style={{ color: '#999', marginTop: 4 }}>Tổng cộng {total} giao dịch</p>
       </div>
 

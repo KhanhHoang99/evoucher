@@ -108,7 +108,7 @@ export default function UsersPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Quản lý user</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Quản Lý User</h1>
           <p style={{ color: '#999', marginTop: 4 }}>Tổng cộng {users.length} tài khoản</p>
         </div>
         <button onClick={() => { setShowForm(true); setError('') }} style={{

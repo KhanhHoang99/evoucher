@@ -129,43 +129,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Biểu đồ doanh thu 30 ngày */}
-      <div style={{ background: 'white', borderRadius: 16, padding: 24, marginBottom: 24, border: '1px solid #eee' }}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 20 }}>
-          Doanh thu 30 ngày gần nhất
-        </h3>
-        <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={stats.dailyRevenue} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickFormatter={formatDate}
-              tick={{ fontSize: 11, fill: '#999' }}
-              axisLine={false}
-              tickLine={false}
-              interval={4}
-            />
-            <YAxis
-              tickFormatter={formatMoney}
-              tick={{ fontSize: 11, fill: '#999' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              formatter={(value) => [formatMoneyFull(value as number), 'Doanh thu']}
-              labelFormatter={(label) => {
-                const d = new Date(label)
-                return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`
-              }}
-              contentStyle={{ borderRadius: 10, border: '1px solid #eee', fontSize: 13 }}
-            />
-            <Bar dataKey="amount" fill="#E8440A" radius={[6, 6, 0, 0]} maxBarSize={32} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
       {/* Row 3: Cửa hàng + Partner */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div style={{ display: 'grid', marginBottom: 24,  gridTemplateColumns: '1fr 1fr', gap: 24 }}>
 
         {/* Thống kê theo cửa hàng */}
         <div style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid #eee' }}>
@@ -223,6 +188,43 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Biểu đồ doanh thu 30 ngày */}
+      <div style={{ background: 'white', borderRadius: 16, padding: 24, marginBottom: 24, border: '1px solid #eee' }}>
+        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 20 }}>
+          Doanh thu 30 ngày gần nhất
+        </h3>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={stats.dailyRevenue} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickFormatter={formatDate}
+              tick={{ fontSize: 11, fill: '#999' }}
+              axisLine={false}
+              tickLine={false}
+              interval={4}
+            />
+            <YAxis
+              tickFormatter={formatMoney}
+              tick={{ fontSize: 11, fill: '#999' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              formatter={(value) => [formatMoneyFull(value as number), 'Doanh thu']}
+              labelFormatter={(label) => {
+                const d = new Date(label)
+                return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`
+              }}
+              contentStyle={{ borderRadius: 10, border: '1px solid #eee', fontSize: 13 }}
+            />
+            <Bar dataKey="amount" fill="#E8440A" radius={[6, 6, 0, 0]} maxBarSize={32} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      
     </div>
   )
 }

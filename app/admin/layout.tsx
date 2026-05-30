@@ -3,15 +3,29 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+// Import các icon hiện đại từ Lucide
+import { 
+  LayoutDashboard, 
+  FileUp, 
+  Ticket, 
+  ReceiptText, 
+  Store, 
+  Users, 
+  Handshake,
+  LogOut,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react'
 
+// Cấu trúc lại menuItems, chuyển icon từ chuỗi Emoji sang Component Lucide
 const menuItems = [
-  { href: '/admin/dashboard', icon: '📊', label: 'Dashboard' },
-  { href: '/admin/import', icon: '📥', label: 'Import thẻ' },
-  { href: '/admin/vouchers', icon: '🎫', label: 'Danh sách thẻ' },
-  { href: '/admin/transactions', icon: '📋', label: 'Lịch sử giao dịch' },
-  { href: '/admin/stores', icon: '🏪', label: 'Quản lý cửa hàng' },
-  { href: '/admin/users', icon: '👥', label: 'Quản lý user' },
-  { href: '/admin/partners', icon: '🤝', label: 'Quản lý partner' },
+  { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/admin/import', icon: FileUp, label: 'Import Thẻ' },
+  { href: '/admin/vouchers', icon: Ticket, label: 'Danh Sách Thẻ' },
+  { href: '/admin/transactions', icon: ReceiptText, label: 'Lịch Sử Giao Dịch' },
+  { href: '/admin/stores', icon: Store, label: 'Quản Lý Cửa Hàng' },
+  { href: '/admin/users', icon: Users, label: 'Quản Lý User' },
+  { href: '/admin/partners', icon: Handshake, label: 'Quản Lý Partner' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -77,8 +91,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           {!collapsed && (
             <button onClick={() => setCollapsed(true)}
-              style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 16 }}>
-              ◀
+              style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', display: 'flex', alignItems: 'center' }}>
+              <ChevronLeft size={18} />
             </button>
           )}
         </div>
@@ -86,8 +100,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Toggle khi collapsed */}
         {collapsed && (
           <button onClick={() => setCollapsed(false)}
-            style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 16, padding: '8px 0' }}>
-            ▶
+            style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', padding: '12px 0', display: 'flex', justifyContent: 'center' }}>
+            <ChevronRight size={18} />
           </button>
         )}
 
@@ -95,12 +109,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
           {menuItems.map((item) => {
             const isActive = pathname === item.href
+            const IconComponent = item.icon // Gán tạm vào một biến viết hoa để render thành component
+            
             return (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 12, // Tăng nhẹ gap cho thoáng
                   padding: collapsed ? '10px' : '10px 12px',
                   borderRadius: 10,
                   marginBottom: 4,
@@ -112,7 +128,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   justifyContent: collapsed ? 'center' : 'flex-start',
                   transition: 'all 0.15s',
                 }}>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
+                  {/* Render Icon động, tự đổi màu theo trạng thái Active */}
+                  <IconComponent size={18} strokeWidth={isActive ? 2.2 : 1.8} style={{ flexShrink: 0 }} />
                   {!collapsed && <span>{item.label}</span>}
                 </div>
               </Link>
@@ -126,9 +143,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           borderTop: '1px solid #eee',
         }}>
           {!collapsed && user && (
-            <div style={{ marginBottom: 10 }}>
+            <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{user.username}</div>
-              <div style={{ fontSize: 11, color: '#999' }}>Quản trị viên</div>
+              <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>Quản trị viên</div>
             </div>
           )}
           <button onClick={handleLogout} style={{
@@ -139,8 +156,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             display: 'flex', alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'flex-start',
             gap: 8,
+            transition: 'background 0.2s',
           }}>
-            <span>🚪</span>
+            <LogOut size={16} />
             {!collapsed && <span>Đăng xuất</span>}
           </button>
         </div>

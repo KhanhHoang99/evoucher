@@ -60,7 +60,7 @@ export default function StoresPage() {
     <div style={{ padding: 32 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Quản lý cửa hàng</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Quản Lý Cửa Hàng</h1>
           <p style={{ color: '#999', marginTop: 4 }}>Tổng cộng {stores.length} cửa hàng</p>
         </div>
         <button onClick={() => { setShowForm(true); setError('') }} style={{

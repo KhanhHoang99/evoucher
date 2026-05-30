@@ -84,7 +84,7 @@ export default function VouchersPage() {
   return (
     <div style={{ padding: 32 }}>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Danh sách thẻ</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Danh Sách Thẻ</h1>
         <p style={{ color: '#999', marginTop: 4 }}>Tổng cộng {total} thẻ</p>
       </div>
 

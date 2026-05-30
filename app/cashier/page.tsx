@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { History, LogOut } from 'lucide-react'
 
 interface HistoryLog {
   id: string         // hoặc orderCode
@@ -283,19 +284,54 @@ export default function CashierPage() {
     </div>
   </div>
 
-  {/* Nút phải */}
-  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-    <Link href="/cashier/history" style={{ fontSize: 13, color: '#666', fontWeight: 500, textDecoration: 'none' }}>
-      📋 Lịch sử
-    </Link>
-    <button onClick={() => {
-      localStorage.clear()
-      document.cookie = 'token=; path=/; max-age=0'
-      router.push('/login')
-    }} style={{ fontSize: 13, color: '#999', border: 'none', background: 'none', cursor: 'pointer' }}>
-      Đăng xuất
-    </button>
-  </div>
+    {/* Nút phải */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+      {/* Link Lịch sử */}
+      <Link 
+        href="/cashier/history" 
+        style={{ 
+          fontSize: 13, 
+          color: '#555', 
+          fontWeight: 500, 
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          transition: 'color 0.15s'
+        }}
+        // Hiệu ứng hover nhẹ cho chuyên nghiệp
+        onMouseEnter={(e) => (e.currentTarget.style.color = '#E8440A')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = '#555')}
+      >
+        <History size={16} strokeWidth={1.8} />
+        <span>Lịch sử</span>
+      </Link>
+
+      {/* Nút Đăng xuất */}
+      <button 
+        onClick={() => {
+          localStorage.clear()
+          document.cookie = 'token=; path=/; max-age=0'
+          router.push('/login')
+        }} 
+        style={{ 
+          fontSize: 13, 
+          color: '#888', 
+          border: 'none', 
+          background: 'none', 
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: 0,
+          transition: 'color 0.15s'
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = '#e11d48')} // Hover sang màu đỏ nhẹ khi muốn out
+        onMouseLeave={(e) => (e.currentTarget.style.color = '#888')}
+      >
+        <span>Đăng xuất</span>
+      </button>
+    </div>
 
 </div>
 
