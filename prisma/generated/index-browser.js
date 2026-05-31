@@ -166,6 +166,9 @@ exports.Prisma.TransactionScalarFieldEnum = {
   amount: 'amount',
   balanceBefore: 'balanceBefore',
   balanceAfter: 'balanceAfter',
+  type: 'type',
+  reason: 'reason',
+  adjustedBy: 'adjustedBy',
   createdAt: 'createdAt',
   voucherId: 'voucherId',
   storeId: 'storeId'

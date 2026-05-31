@@ -86,13 +86,16 @@ model Transaction {
   amount        Int
   balanceBefore Int
   balanceAfter  Int
+  type          String   @default("PAYMENT")    // PAYMENT hoặc ADJUSTMENT
+  reason        String?                          // Lý do (bắt buộc khi ADJUSTMENT)
+  adjustedBy    String?                          // userId admin thực hiện
   createdAt     DateTime @default(now())
 
   voucherId String
   voucher   Voucher @relation(fields: [voucherId], references: [id])
 
-  storeId String
-  store   Store  @relation(fields: [storeId], references: [id])
+  storeId String?
+  store   Store?  @relation(fields: [storeId], references: [id])
 
   @@map("transactions")
 }

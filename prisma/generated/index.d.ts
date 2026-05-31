@@ -5888,6 +5888,9 @@ export namespace Prisma {
     amount: number | null
     balanceBefore: number | null
     balanceAfter: number | null
+    type: string | null
+    reason: string | null
+    adjustedBy: string | null
     createdAt: Date | null
     voucherId: string | null
     storeId: string | null
@@ -5899,6 +5902,9 @@ export namespace Prisma {
     amount: number | null
     balanceBefore: number | null
     balanceAfter: number | null
+    type: string | null
+    reason: string | null
+    adjustedBy: string | null
     createdAt: Date | null
     voucherId: string | null
     storeId: string | null
@@ -5910,6 +5916,9 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type: number
+    reason: number
+    adjustedBy: number
     createdAt: number
     voucherId: number
     storeId: number
@@ -5935,6 +5944,9 @@ export namespace Prisma {
     amount?: true
     balanceBefore?: true
     balanceAfter?: true
+    type?: true
+    reason?: true
+    adjustedBy?: true
     createdAt?: true
     voucherId?: true
     storeId?: true
@@ -5946,6 +5958,9 @@ export namespace Prisma {
     amount?: true
     balanceBefore?: true
     balanceAfter?: true
+    type?: true
+    reason?: true
+    adjustedBy?: true
     createdAt?: true
     voucherId?: true
     storeId?: true
@@ -5957,6 +5972,9 @@ export namespace Prisma {
     amount?: true
     balanceBefore?: true
     balanceAfter?: true
+    type?: true
+    reason?: true
+    adjustedBy?: true
     createdAt?: true
     voucherId?: true
     storeId?: true
@@ -6055,9 +6073,12 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type: string
+    reason: string | null
+    adjustedBy: string | null
     createdAt: Date
     voucherId: string
-    storeId: string
+    storeId: string | null
     _count: TransactionCountAggregateOutputType | null
     _avg: TransactionAvgAggregateOutputType | null
     _sum: TransactionSumAggregateOutputType | null
@@ -6085,11 +6106,14 @@ export namespace Prisma {
     amount?: boolean
     balanceBefore?: boolean
     balanceAfter?: boolean
+    type?: boolean
+    reason?: boolean
+    adjustedBy?: boolean
     createdAt?: boolean
     voucherId?: boolean
     storeId?: boolean
     voucher?: boolean | VoucherDefaultArgs<ExtArgs>
-    store?: boolean | StoreDefaultArgs<ExtArgs>
+    store?: boolean | Transaction$storeArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
 
   export type TransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6098,11 +6122,14 @@ export namespace Prisma {
     amount?: boolean
     balanceBefore?: boolean
     balanceAfter?: boolean
+    type?: boolean
+    reason?: boolean
+    adjustedBy?: boolean
     createdAt?: boolean
     voucherId?: boolean
     storeId?: boolean
     voucher?: boolean | VoucherDefaultArgs<ExtArgs>
-    store?: boolean | StoreDefaultArgs<ExtArgs>
+    store?: boolean | Transaction$storeArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
 
   export type TransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6111,11 +6138,14 @@ export namespace Prisma {
     amount?: boolean
     balanceBefore?: boolean
     balanceAfter?: boolean
+    type?: boolean
+    reason?: boolean
+    adjustedBy?: boolean
     createdAt?: boolean
     voucherId?: boolean
     storeId?: boolean
     voucher?: boolean | VoucherDefaultArgs<ExtArgs>
-    store?: boolean | StoreDefaultArgs<ExtArgs>
+    store?: boolean | Transaction$storeArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
 
   export type TransactionSelectScalar = {
@@ -6124,30 +6154,33 @@ export namespace Prisma {
     amount?: boolean
     balanceBefore?: boolean
     balanceAfter?: boolean
+    type?: boolean
+    reason?: boolean
+    adjustedBy?: boolean
     createdAt?: boolean
     voucherId?: boolean
     storeId?: boolean
   }
 
-  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderCode" | "amount" | "balanceBefore" | "balanceAfter" | "createdAt" | "voucherId" | "storeId", ExtArgs["result"]["transaction"]>
+  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderCode" | "amount" | "balanceBefore" | "balanceAfter" | "type" | "reason" | "adjustedBy" | "createdAt" | "voucherId" | "storeId", ExtArgs["result"]["transaction"]>
   export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     voucher?: boolean | VoucherDefaultArgs<ExtArgs>
-    store?: boolean | StoreDefaultArgs<ExtArgs>
+    store?: boolean | Transaction$storeArgs<ExtArgs>
   }
   export type TransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     voucher?: boolean | VoucherDefaultArgs<ExtArgs>
-    store?: boolean | StoreDefaultArgs<ExtArgs>
+    store?: boolean | Transaction$storeArgs<ExtArgs>
   }
   export type TransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     voucher?: boolean | VoucherDefaultArgs<ExtArgs>
-    store?: boolean | StoreDefaultArgs<ExtArgs>
+    store?: boolean | Transaction$storeArgs<ExtArgs>
   }
 
   export type $TransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Transaction"
     objects: {
       voucher: Prisma.$VoucherPayload<ExtArgs>
-      store: Prisma.$StorePayload<ExtArgs>
+      store: Prisma.$StorePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6155,9 +6188,12 @@ export namespace Prisma {
       amount: number
       balanceBefore: number
       balanceAfter: number
+      type: string
+      reason: string | null
+      adjustedBy: string | null
       createdAt: Date
       voucherId: string
-      storeId: string
+      storeId: string | null
     }, ExtArgs["result"]["transaction"]>
     composites: {}
   }
@@ -6553,7 +6589,7 @@ export namespace Prisma {
   export interface Prisma__TransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     voucher<T extends VoucherDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VoucherDefaultArgs<ExtArgs>>): Prisma__VoucherClient<$Result.GetResult<Prisma.$VoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    store<T extends StoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StoreDefaultArgs<ExtArgs>>): Prisma__StoreClient<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    store<T extends Transaction$storeArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$storeArgs<ExtArgs>>): Prisma__StoreClient<$Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6588,6 +6624,9 @@ export namespace Prisma {
     readonly amount: FieldRef<"Transaction", 'Int'>
     readonly balanceBefore: FieldRef<"Transaction", 'Int'>
     readonly balanceAfter: FieldRef<"Transaction", 'Int'>
+    readonly type: FieldRef<"Transaction", 'String'>
+    readonly reason: FieldRef<"Transaction", 'String'>
+    readonly adjustedBy: FieldRef<"Transaction", 'String'>
     readonly createdAt: FieldRef<"Transaction", 'DateTime'>
     readonly voucherId: FieldRef<"Transaction", 'String'>
     readonly storeId: FieldRef<"Transaction", 'String'>
@@ -6992,6 +7031,25 @@ export namespace Prisma {
   }
 
   /**
+   * Transaction.store
+   */
+  export type Transaction$storeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Store
+     */
+    select?: StoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Store
+     */
+    omit?: StoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StoreInclude<ExtArgs> | null
+    where?: StoreWhereInput
+  }
+
+  /**
    * Transaction without action
    */
   export type TransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7082,6 +7140,9 @@ export namespace Prisma {
     amount: 'amount',
     balanceBefore: 'balanceBefore',
     balanceAfter: 'balanceAfter',
+    type: 'type',
+    reason: 'reason',
+    adjustedBy: 'adjustedBy',
     createdAt: 'createdAt',
     voucherId: 'voucherId',
     storeId: 'storeId'
@@ -7490,11 +7551,14 @@ export namespace Prisma {
     amount?: IntFilter<"Transaction"> | number
     balanceBefore?: IntFilter<"Transaction"> | number
     balanceAfter?: IntFilter<"Transaction"> | number
+    type?: StringFilter<"Transaction"> | string
+    reason?: StringNullableFilter<"Transaction"> | string | null
+    adjustedBy?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     voucherId?: StringFilter<"Transaction"> | string
-    storeId?: StringFilter<"Transaction"> | string
+    storeId?: StringNullableFilter<"Transaction"> | string | null
     voucher?: XOR<VoucherScalarRelationFilter, VoucherWhereInput>
-    store?: XOR<StoreScalarRelationFilter, StoreWhereInput>
+    store?: XOR<StoreNullableScalarRelationFilter, StoreWhereInput> | null
   }
 
   export type TransactionOrderByWithRelationInput = {
@@ -7503,9 +7567,12 @@ export namespace Prisma {
     amount?: SortOrder
     balanceBefore?: SortOrder
     balanceAfter?: SortOrder
+    type?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    adjustedBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     voucherId?: SortOrder
-    storeId?: SortOrder
+    storeId?: SortOrderInput | SortOrder
     voucher?: VoucherOrderByWithRelationInput
     store?: StoreOrderByWithRelationInput
   }
@@ -7519,11 +7586,14 @@ export namespace Prisma {
     amount?: IntFilter<"Transaction"> | number
     balanceBefore?: IntFilter<"Transaction"> | number
     balanceAfter?: IntFilter<"Transaction"> | number
+    type?: StringFilter<"Transaction"> | string
+    reason?: StringNullableFilter<"Transaction"> | string | null
+    adjustedBy?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     voucherId?: StringFilter<"Transaction"> | string
-    storeId?: StringFilter<"Transaction"> | string
+    storeId?: StringNullableFilter<"Transaction"> | string | null
     voucher?: XOR<VoucherScalarRelationFilter, VoucherWhereInput>
-    store?: XOR<StoreScalarRelationFilter, StoreWhereInput>
+    store?: XOR<StoreNullableScalarRelationFilter, StoreWhereInput> | null
   }, "id" | "orderCode">
 
   export type TransactionOrderByWithAggregationInput = {
@@ -7532,9 +7602,12 @@ export namespace Prisma {
     amount?: SortOrder
     balanceBefore?: SortOrder
     balanceAfter?: SortOrder
+    type?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    adjustedBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     voucherId?: SortOrder
-    storeId?: SortOrder
+    storeId?: SortOrderInput | SortOrder
     _count?: TransactionCountOrderByAggregateInput
     _avg?: TransactionAvgOrderByAggregateInput
     _max?: TransactionMaxOrderByAggregateInput
@@ -7551,9 +7624,12 @@ export namespace Prisma {
     amount?: IntWithAggregatesFilter<"Transaction"> | number
     balanceBefore?: IntWithAggregatesFilter<"Transaction"> | number
     balanceAfter?: IntWithAggregatesFilter<"Transaction"> | number
+    type?: StringWithAggregatesFilter<"Transaction"> | string
+    reason?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
+    adjustedBy?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
     voucherId?: StringWithAggregatesFilter<"Transaction"> | string
-    storeId?: StringWithAggregatesFilter<"Transaction"> | string
+    storeId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
   }
 
   export type PartnerCreateInput = {
@@ -7856,9 +7932,12 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
     voucher: VoucherCreateNestedOneWithoutTransactionsInput
-    store: StoreCreateNestedOneWithoutTransactionsInput
+    store?: StoreCreateNestedOneWithoutTransactionsInput
   }
 
   export type TransactionUncheckedCreateInput = {
@@ -7867,9 +7946,12 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
     voucherId: string
-    storeId: string
+    storeId?: string | null
   }
 
   export type TransactionUpdateInput = {
@@ -7878,9 +7960,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     voucher?: VoucherUpdateOneRequiredWithoutTransactionsNestedInput
-    store?: StoreUpdateOneRequiredWithoutTransactionsNestedInput
+    store?: StoreUpdateOneWithoutTransactionsNestedInput
   }
 
   export type TransactionUncheckedUpdateInput = {
@@ -7889,9 +7974,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     voucherId?: StringFieldUpdateOperationsInput | string
-    storeId?: StringFieldUpdateOperationsInput | string
+    storeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TransactionCreateManyInput = {
@@ -7900,9 +7988,12 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
     voucherId: string
-    storeId: string
+    storeId?: string | null
   }
 
   export type TransactionUpdateManyMutationInput = {
@@ -7911,6 +8002,9 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7920,9 +8014,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     voucherId?: StringFieldUpdateOperationsInput | string
-    storeId?: StringFieldUpdateOperationsInput | string
+    storeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -8270,17 +8367,15 @@ export namespace Prisma {
     isNot?: VoucherWhereInput
   }
 
-  export type StoreScalarRelationFilter = {
-    is?: StoreWhereInput
-    isNot?: StoreWhereInput
-  }
-
   export type TransactionCountOrderByAggregateInput = {
     id?: SortOrder
     orderCode?: SortOrder
     amount?: SortOrder
     balanceBefore?: SortOrder
     balanceAfter?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    adjustedBy?: SortOrder
     createdAt?: SortOrder
     voucherId?: SortOrder
     storeId?: SortOrder
@@ -8298,6 +8393,9 @@ export namespace Prisma {
     amount?: SortOrder
     balanceBefore?: SortOrder
     balanceAfter?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    adjustedBy?: SortOrder
     createdAt?: SortOrder
     voucherId?: SortOrder
     storeId?: SortOrder
@@ -8309,6 +8407,9 @@ export namespace Prisma {
     amount?: SortOrder
     balanceBefore?: SortOrder
     balanceAfter?: SortOrder
+    type?: SortOrder
+    reason?: SortOrder
+    adjustedBy?: SortOrder
     createdAt?: SortOrder
     voucherId?: SortOrder
     storeId?: SortOrder
@@ -8570,10 +8671,12 @@ export namespace Prisma {
     update?: XOR<XOR<VoucherUpdateToOneWithWhereWithoutTransactionsInput, VoucherUpdateWithoutTransactionsInput>, VoucherUncheckedUpdateWithoutTransactionsInput>
   }
 
-  export type StoreUpdateOneRequiredWithoutTransactionsNestedInput = {
+  export type StoreUpdateOneWithoutTransactionsNestedInput = {
     create?: XOR<StoreCreateWithoutTransactionsInput, StoreUncheckedCreateWithoutTransactionsInput>
     connectOrCreate?: StoreCreateOrConnectWithoutTransactionsInput
     upsert?: StoreUpsertWithoutTransactionsInput
+    disconnect?: StoreWhereInput | boolean
+    delete?: StoreWhereInput | boolean
     connect?: StoreWhereUniqueInput
     update?: XOR<XOR<StoreUpdateToOneWithWhereWithoutTransactionsInput, StoreUpdateWithoutTransactionsInput>, StoreUncheckedUpdateWithoutTransactionsInput>
   }
@@ -8863,6 +8966,9 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
     voucher: VoucherCreateNestedOneWithoutTransactionsInput
   }
@@ -8873,6 +8979,9 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
     voucherId: string
   }
@@ -8941,9 +9050,12 @@ export namespace Prisma {
     amount?: IntFilter<"Transaction"> | number
     balanceBefore?: IntFilter<"Transaction"> | number
     balanceAfter?: IntFilter<"Transaction"> | number
+    type?: StringFilter<"Transaction"> | string
+    reason?: StringNullableFilter<"Transaction"> | string | null
+    adjustedBy?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     voucherId?: StringFilter<"Transaction"> | string
-    storeId?: StringFilter<"Transaction"> | string
+    storeId?: StringNullableFilter<"Transaction"> | string | null
   }
 
   export type StoreCreateWithoutUsersInput = {
@@ -9029,8 +9141,11 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
-    store: StoreCreateNestedOneWithoutTransactionsInput
+    store?: StoreCreateNestedOneWithoutTransactionsInput
   }
 
   export type TransactionUncheckedCreateWithoutVoucherInput = {
@@ -9039,8 +9154,11 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
-    storeId: string
+    storeId?: string | null
   }
 
   export type TransactionCreateOrConnectWithoutVoucherInput = {
@@ -9285,6 +9403,9 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
     voucherId: string
   }
@@ -9322,6 +9443,9 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     voucher?: VoucherUpdateOneRequiredWithoutTransactionsNestedInput
   }
@@ -9332,6 +9456,9 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     voucherId?: StringFieldUpdateOperationsInput | string
   }
@@ -9342,6 +9469,9 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     voucherId?: StringFieldUpdateOperationsInput | string
   }
@@ -9352,8 +9482,11 @@ export namespace Prisma {
     amount: number
     balanceBefore: number
     balanceAfter: number
+    type?: string
+    reason?: string | null
+    adjustedBy?: string | null
     createdAt?: Date | string
-    storeId: string
+    storeId?: string | null
   }
 
   export type TransactionUpdateWithoutVoucherInput = {
@@ -9362,8 +9495,11 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    store?: StoreUpdateOneRequiredWithoutTransactionsNestedInput
+    store?: StoreUpdateOneWithoutTransactionsNestedInput
   }
 
   export type TransactionUncheckedUpdateWithoutVoucherInput = {
@@ -9372,8 +9508,11 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    storeId?: StringFieldUpdateOperationsInput | string
+    storeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TransactionUncheckedUpdateManyWithoutVoucherInput = {
@@ -9382,8 +9521,11 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     balanceBefore?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    adjustedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    storeId?: StringFieldUpdateOperationsInput | string
+    storeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

@@ -20,6 +20,13 @@ interface Partner {
   name: string
 }
 
+interface AdjustForm {
+  voucherCode: string
+  holderName: string
+  balance: number
+  initialAmount: number
+}
+
 export default function VouchersPage() {
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [partners, setPartners] = useState<Partner[]>([])
@@ -30,6 +37,14 @@ export default function VouchersPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+
+  const [adjustVoucher, setAdjustVoucher] = useState<AdjustForm | null>(null)
+  const [adjustAmount, setAdjustAmount] = useState('')
+  const [adjustType, setAdjustType] = useState<'add' | 'subtract'>('add')
+  const [reason, setReason] = useState('')
+  const [adjustSaving, setAdjustSaving] = useState(false)
+  const [adjustError, setAdjustError] = useState('')
+  const [adjustSuccess, setAdjustSuccess] = useState('')
 
   useEffect(() => { fetchPartners() }, [])
   useEffect(() => { fetchVouchers() }, [page, partnerId, status])
@@ -65,6 +80,39 @@ export default function VouchersPage() {
     if (res.ok) setPartners(data)
   }
 
+  async function handleAdjust() {
+    if (!adjustVoucher) return
+    setAdjustError('')
+    setAdjustSuccess('')
+
+    const amt = parseInt(String(adjustAmount).replace(/\D/g, ''))
+    if (isNaN(amt) || amt <= 0) { setAdjustError('Số tiền không hợp lệ'); return }
+    if (!reason.trim()) { setAdjustError('Vui lòng nhập lý do'); return }
+
+    const finalAmount = adjustType === 'add' ? amt : -amt
+
+    setAdjustSaving(true)
+    try {
+      const res = await fetch(`/api/vouchers/${adjustVoucher.voucherCode}/adjust`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ adjustAmount: finalAmount, reason }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setAdjustError(data.error); return }
+      setAdjustSuccess(`✅ ${data.message} — Số dư mới: ${data.balanceAfter.toLocaleString('vi-VN')}đ`)
+      setTimeout(() => {
+        setAdjustVoucher(null)
+        setAdjustAmount('')
+        setReason('')
+        setAdjustSuccess('')
+        fetchVouchers()
+      }, 2000)
+    } finally {
+      setAdjustSaving(false)
+    }
+  }
+
   function formatMoney(n: number) {
     return n.toLocaleString('vi-VN') + 'đ'
   }
@@ -87,6 +135,123 @@ export default function VouchersPage() {
         <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Danh Sách Thẻ</h1>
         <p style={{ color: '#999', marginTop: 4 }}>Tổng cộng {total} thẻ</p>
       </div>
+
+      {/* Modal điều chỉnh số dư */}
+{adjustVoucher && (
+  <div style={{
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+  }}>
+    <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 460, width: '90%' }}>
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
+        Điều chỉnh số dư thẻ
+      </h3>
+      <p style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>
+        {adjustVoucher.voucherCode} — {adjustVoucher.holderName}
+      </p>
+
+      {/* Số dư hiện tại */}
+      <div style={{ background: '#f8f7f5', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 13, color: '#999' }}>Số dư hiện tại</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#E8440A' }}>
+            {adjustVoucher.balance.toLocaleString('vi-VN')}đ
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+          <span style={{ fontSize: 13, color: '#999' }}>Giá trị ban đầu</span>
+          <span style={{ fontSize: 13, color: '#666' }}>
+            {adjustVoucher.initialAmount.toLocaleString('vi-VN')}đ
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* Loại điều chỉnh */}
+        <div>
+          <label style={labelStyle}>Loại điều chỉnh</label>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => setAdjustType('add')} style={{
+              flex: 1, padding: '10px', borderRadius: 10, fontWeight: 600, fontSize: 13,
+              border: '2px solid ' + (adjustType === 'add' ? '#16a34a' : '#eee'),
+              background: adjustType === 'add' ? '#f0fdf4' : 'white',
+              color: adjustType === 'add' ? '#16a34a' : '#666',
+              cursor: 'pointer',
+            }}>
+              ➕ Hoàn tiền (cộng thêm)
+            </button>
+            <button onClick={() => setAdjustType('subtract')} style={{
+              flex: 1, padding: '10px', borderRadius: 10, fontWeight: 600, fontSize: 13,
+              border: '2px solid ' + (adjustType === 'subtract' ? '#dc2626' : '#eee'),
+              background: adjustType === 'subtract' ? '#fef2f2' : 'white',
+              color: adjustType === 'subtract' ? '#dc2626' : '#666',
+              cursor: 'pointer',
+            }}>
+              ➖ Trừ thêm
+            </button>
+          </div>
+        </div>
+
+        {/* Số tiền */}
+        <div>
+          <label style={labelStyle}>Số tiền điều chỉnh</label>
+          <input
+            value={adjustAmount}
+            onChange={e => {
+              const raw = e.target.value.replace(/\D/g, '')
+              setAdjustAmount(raw ? parseInt(raw).toLocaleString('vi-VN') : '')
+            }}
+            placeholder="Nhập số tiền..."
+            style={inputStyle}
+          />
+        </div>
+
+        {/* Lý do — bắt buộc */}
+        <div>
+          <label style={labelStyle}>Lý do điều chỉnh <span style={{ color: '#E8440A' }}>*</span></label>
+          <input
+            value={reason}
+            onChange={e => setReason(e.target.value)}
+            placeholder="VD: Hoàn tiền do thu nhầm ngày 30/5 tại CH57"
+            style={inputStyle}
+          />
+        </div>
+      </div>
+
+      {adjustError && (
+        <div style={{ background: '#fff1f0', color: '#cf1322', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 12 }}>
+          ⚠️ {adjustError}
+        </div>
+      )}
+      {adjustSuccess && (
+        <div style={{ background: '#f0fdf4', color: '#16a34a', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 12, fontWeight: 600 }}>
+          {adjustSuccess}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+        <button onClick={handleAdjust} disabled={adjustSaving} style={{
+          flex: 1, padding: '12px', borderRadius: 10, border: 'none',
+          background: '#E8440A', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: 14,
+        }}>
+          {adjustSaving ? 'Đang xử lý...' : 'Xác nhận điều chỉnh'}
+        </button>
+        <button onClick={() => {
+          setAdjustVoucher(null)
+          setAdjustAmount('')
+          setReason('')
+          setAdjustError('')
+        }} style={{
+          padding: '12px 20px', borderRadius: 10, border: '1px solid #eee',
+          background: 'white', color: '#666', fontWeight: 600, cursor: 'pointer',
+        }}>
+          Hủy
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Bộ lọc */}
       <div style={{
@@ -148,6 +313,7 @@ export default function VouchersPage() {
                 <Th>Số dư còn lại</Th>
                 <Th>Hạn sử dụng</Th>
                 <Th>Trạng thái</Th>
+                <Th>Thao tác</Th>
               </tr>
             </thead>
             <tbody>
@@ -187,6 +353,26 @@ export default function VouchersPage() {
                         {statusLabel[v.status]}
                       </span>
                     </Td>
+                    <Td>
+  <button onClick={() => {
+    setAdjustVoucher({
+      voucherCode: v.voucherCode,
+      holderName: v.holderName,
+      balance: v.balance,
+      initialAmount: v.initialAmount,
+    })
+    setAdjustAmount('')
+    setReason('')
+    setAdjustError('')
+    setAdjustSuccess('')
+    setAdjustType('add')
+  }} style={{
+    padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    border: '1px solid #fde68a', background: '#fffbeb', color: '#d97706',
+  }}>
+    💰 Điều chỉnh
+  </button>
+</Td>
                   </tr>
                 )
               })}
