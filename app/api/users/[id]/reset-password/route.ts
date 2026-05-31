@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-// PATCH — Cập nhật user (khóa/mở, đổi store)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,24 +13,22 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const body = await req.json();
+    const { newPassword } = await req.json();
 
+    if (!newPassword || newPassword.length < 6) {
+      return NextResponse.json(
+        { error: "Mật khẩu phải có ít nhất 6 ký tự" },
+        { status: 400 }
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
     const user = await prisma.user.update({
       where: { id },
-      data: {
-        ...(body.isActive !== undefined && { isActive: body.isActive }),
-        ...(body.storeId !== undefined && { storeId: body.storeId }),
-        ...(body.role !== undefined && { role: body.role }),
-      },
+      data: { passwordHash },
     });
 
-    return NextResponse.json({ 
-      id: user.id, 
-      username: user.username, 
-      isActive: user.isActive,
-      role: user.role,
-      storeId: user.storeId, 
-    });
+    return NextResponse.json({ message: `Đã reset mật khẩu cho ${user.username}` });
   } catch {
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
   }

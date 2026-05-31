@@ -18,6 +18,10 @@ export default function StoresPage() {
   const [form, setForm] = useState({ storeCode: '', name: '', location: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [editStore, setEditStore] = useState<Store | null>(null)
+  const [editForm, setEditForm] = useState({ name: '', location: '' })
+  const [editSaving, setEditSaving] = useState(false)
+  const [editError, setEditError] = useState('')
 
   useEffect(() => { fetchStores() }, [])
 
@@ -55,6 +59,37 @@ export default function StoresPage() {
       setSaving(false)
     }
   }
+
+  async function handleEdit() {
+    if (!editStore) return
+    setEditError('')
+    if (!editForm.name) { setEditError('Vui lòng nhập tên cửa hàng'); return }
+    setEditSaving(true)
+    try {
+      const res = await fetch(`/api/stores/${editStore.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify(editForm),
+      })
+      const data = await res.json()
+      if (!res.ok) { setEditError(data.error); return }
+      setEditStore(null)
+      fetchStores()
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
+  async function toggleActive(store: Store) {
+  try {
+    await fetch(`/api/stores/${store.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ isActive: !store.isActive }),
+    })
+    fetchStores()
+  } catch {}
+}
 
   return (
     <div style={{ padding: 32 }}>
@@ -116,6 +151,52 @@ export default function StoresPage() {
         </div>
       )}
 
+      {editStore && (
+  <div style={{
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+  }}>
+    <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 440, width: '90%' }}>
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
+        Sửa cửa hàng: <span style={{ color: '#E8440A' }}>{editStore.storeCode}</span>
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <label style={labelStyle}>Tên cửa hàng</label>
+          <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+            placeholder="Tên cửa hàng" style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Địa chỉ</label>
+          <input value={editForm.location} onChange={e => setEditForm({ ...editForm, location: e.target.value })}
+            placeholder="Địa chỉ" style={inputStyle} />
+        </div>
+      </div>
+      {editError && (
+        <div style={{ background: '#fff1f0', color: '#cf1322', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 10 }}>
+          ⚠️ {editError}
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+        <button onClick={handleEdit} disabled={editSaving} style={{
+          padding: '10px 24px', borderRadius: 10, border: 'none',
+          background: '#E8440A', color: 'white', fontWeight: 600, cursor: 'pointer',
+        }}>
+          {editSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+        </button>
+        <button onClick={() => setEditStore(null)} style={{
+          padding: '10px 24px', borderRadius: 10, border: '1px solid #eee',
+          background: 'white', color: '#666', fontWeight: 600, cursor: 'pointer',
+        }}>
+          Hủy
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+    
+      {/* Table */}
       <div style={{ background: 'white', borderRadius: 16, border: '1px solid #eee', overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: 48, textAlign: 'center', color: '#999' }}>Đang tải...</div>
@@ -128,6 +209,7 @@ export default function StoresPage() {
                 <Th>Địa chỉ</Th>
                 <Th>Trạng thái</Th>
                 <Th>Ngày tạo</Th>
+                <Th>Thao tác</Th>
               </tr>
             </thead>
             <tbody>
@@ -149,9 +231,33 @@ export default function StoresPage() {
                       {store.isActive ? 'Đang hoạt động' : 'Đã đóng'}
                     </span>
                   </Td>
+
                   <Td style={{ color: '#999', fontSize: 13 }}>
                     {new Date(store.createdAt).toLocaleDateString('vi-VN')}
                   </Td>
+                  <Td>
+  <div style={{ display: 'flex', gap: 6 }}>
+    <button onClick={() => {
+      setEditStore(store)
+      setEditForm({ name: store.name, location: store.location || '' })
+      setEditError('')
+    }} style={{
+      padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+      border: '1px solid #bfdbfe', background: '#eff6ff', color: '#2563eb',
+    }}>
+      ✏️ Sửa
+    </button>
+    <button onClick={() => toggleActive(store)} style={{
+      padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+      border: '1px solid ' + (store.isActive ? '#fca5a5' : '#86efac'),
+      background: store.isActive ? '#fef2f2' : '#f0fdf4',
+      color: store.isActive ? '#dc2626' : '#16a34a',
+    }}>
+      {store.isActive ? 'Khóa' : 'Mở khóa'}
+    </button>
+  </div>
+</Td>
+                  
                 </tr>
               ))}
             </tbody>

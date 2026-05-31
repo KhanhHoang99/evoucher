@@ -69,32 +69,37 @@ export default function CashierHistoryPage() {
     return { from: dateFrom, to: dateTo }
   }
 
-  async function fetchTransactions() {
-    setLoading(true)
-    try {
-      const { from, to } = getDateRange(dateFilter)
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: '20',
-        ...(searchCode && { voucherCode: searchCode }),
-        ...(from && { dateFrom: from }),
-        ...(to && { dateTo: to }),
-      })
+async function fetchTransactions() {
+  setLoading(true)
+  try {
+    const { from, to } = getDateRange(dateFilter)
 
-      const res = await fetch(`/api/transactions?${params}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      const data = await res.json()
-      if (res.ok) {
-        setTransactions(data.data)
-        setTotal(data.pagination.total)
-        setTotalPages(data.pagination.totalPages)
-        setTotalRevenue(data.totalRevenue)
-      }
-    } finally {
-      setLoading(false)
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: '20',
+    })
+
+    // Luôn gửi kèm filter ngày
+    if (from) params.append('dateFrom', from)
+    if (to) params.append('dateTo', to)
+
+    // Chỉ gửi voucherCode nếu có
+    if (searchCode) params.append('voucherCode', searchCode)
+
+    const res = await fetch(`/api/transactions?${params}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setTransactions(data.data)
+      setTotal(data.pagination.total)
+      setTotalPages(data.pagination.totalPages)
+      setTotalRevenue(data.totalRevenue)
     }
+  } finally {
+    setLoading(false)
   }
+}
 
   function formatMoney(n: number) {
     return n.toLocaleString('vi-VN') + 'đ'

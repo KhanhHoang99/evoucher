@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// PATCH — Cập nhật user (khóa/mở, đổi store)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,22 +14,16 @@ export async function PATCH(
     const { id } = await params;
     const body = await req.json();
 
-    const user = await prisma.user.update({
+    const store = await prisma.store.update({
       where: { id },
       data: {
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.location !== undefined && { location: body.location }),
         ...(body.isActive !== undefined && { isActive: body.isActive }),
-        ...(body.storeId !== undefined && { storeId: body.storeId }),
-        ...(body.role !== undefined && { role: body.role }),
       },
     });
 
-    return NextResponse.json({ 
-      id: user.id, 
-      username: user.username, 
-      isActive: user.isActive,
-      role: user.role,
-      storeId: user.storeId, 
-    });
+    return NextResponse.json(store);
   } catch {
     return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
   }

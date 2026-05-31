@@ -19,6 +19,11 @@ export default function PartnersPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
+  const [editPartner, setEditPartner] = useState<Partner | null>(null)
+  const [editForm, setEditForm] = useState({ name: '', note: '' })
+  const [editSaving, setEditSaving] = useState(false)
+  const [editError, setEditError] = useState('')
+
   useEffect(() => { fetchPartners() }, [])
 
   function getToken() { return localStorage.getItem('token') || '' }
@@ -55,6 +60,37 @@ export default function PartnersPage() {
       setSaving(false)
     }
   }
+
+  async function handleEdit() {
+    if (!editPartner) return
+    setEditError('')
+    if (!editForm.name) { setEditError('Vui lòng nhập tên partner'); return }
+    setEditSaving(true)
+    try {
+      const res = await fetch(`/api/partners/${editPartner.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify(editForm),
+      })
+      const data = await res.json()
+      if (!res.ok) { setEditError(data.error); return }
+      setEditPartner(null)
+      fetchPartners()
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
+  async function toggleActive(partner: Partner) {
+  try {
+    await fetch(`/api/partners/${partner.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ isActive: !partner.isActive }),
+    })
+    fetchPartners()
+  } catch {}
+}
 
   return (
     <div style={{ padding: 32 }}>
@@ -111,6 +147,51 @@ export default function PartnersPage() {
         </div>
       )}
 
+      {editPartner && (
+  <div style={{
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+  }}>
+    <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 440, width: '90%' }}>
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
+        Sửa partner: <span style={{ color: '#E8440A' }}>{editPartner.name}</span>
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <label style={labelStyle}>Tên đối tác</label>
+          <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+            placeholder="Tên đối tác" style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Ghi chú</label>
+          <input value={editForm.note} onChange={e => setEditForm({ ...editForm, note: e.target.value })}
+            placeholder="Ghi chú (không bắt buộc)" style={inputStyle} />
+        </div>
+      </div>
+      {editError && (
+        <div style={{ background: '#fff1f0', color: '#cf1322', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 10 }}>
+          ⚠️ {editError}
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+        <button onClick={handleEdit} disabled={editSaving} style={{
+          padding: '10px 24px', borderRadius: 10, border: 'none',
+          background: '#E8440A', color: 'white', fontWeight: 600, cursor: 'pointer',
+        }}>
+          {editSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+        </button>
+        <button onClick={() => setEditPartner(null)} style={{
+          padding: '10px 24px', borderRadius: 10, border: '1px solid #eee',
+          background: 'white', color: '#666', fontWeight: 600, cursor: 'pointer',
+        }}>
+          Hủy
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       <div style={{ background: 'white', borderRadius: 16, border: '1px solid #eee', overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: 48, textAlign: 'center', color: '#999' }}>Đang tải...</div>
@@ -123,6 +204,7 @@ export default function PartnersPage() {
                 <Th>Tổng thẻ</Th>
                 <Th>Trạng thái</Th>
                 <Th>Ngày tạo</Th>
+                <Th>Thao tác</Th>
               </tr>
             </thead>
             <tbody>
@@ -151,6 +233,30 @@ export default function PartnersPage() {
                   <Td style={{ color: '#999', fontSize: 13 }}>
                     {new Date(partner.createdAt).toLocaleDateString('vi-VN')}
                   </Td>
+                  
+                  <Td>
+  <div style={{ display: 'flex', gap: 6 }}>
+    <button onClick={() => {
+      setEditPartner(partner)
+      setEditForm({ name: partner.name, note: partner.note || '' })
+      setEditError('')
+    }} style={{
+      padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+      border: '1px solid #bfdbfe', background: '#eff6ff', color: '#2563eb',
+    }}>
+      ✏️ Sửa
+    </button>
+    <button onClick={() => toggleActive(partner)} style={{
+      padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+      border: '1px solid ' + (partner.isActive ? '#fca5a5' : '#86efac'),
+      background: partner.isActive ? '#fef2f2' : '#f0fdf4',
+      color: partner.isActive ? '#dc2626' : '#16a34a',
+    }}>
+      {partner.isActive ? 'Khóa' : 'Mở khóa'}
+    </button>
+  </div>
+</Td>
+
                 </tr>
               ))}
             </tbody>
