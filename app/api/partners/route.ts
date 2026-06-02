@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: NextRequest) {
   try {
     const role = req.headers.get("x-user-role");
-    if (role !== "ADMIN") {
+    if (role !== "ADMIN" && role !== "VIEWER") {
       return NextResponse.json({ error: "Không có quyền" }, { status: 403 });
     }
 

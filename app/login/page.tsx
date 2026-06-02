@@ -43,8 +43,8 @@ export default function LoginPage() {
         router.push('/cashier')
       } else if (data.user.role === 'ADMIN') {
         router.push('/admin/dashboard') // vào dashboard
-      } else {
-        router.push('/viewer')
+      } else if (data.user.role === 'VIEWER'){
+        router.push('/viewer/dashboard')
       }
 
     } catch {
