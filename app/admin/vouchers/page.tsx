@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Coins } from 'lucide-react'
 
 interface Voucher {
   id: string
@@ -354,25 +355,47 @@ export default function VouchersPage() {
                       </span>
                     </Td>
                     <Td>
-  <button onClick={() => {
-    setAdjustVoucher({
-      voucherCode: v.voucherCode,
-      holderName: v.holderName,
-      balance: v.balance,
-      initialAmount: v.initialAmount,
-    })
-    setAdjustAmount('')
-    setReason('')
-    setAdjustError('')
-    setAdjustSuccess('')
-    setAdjustType('add')
-  }} style={{
-    padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-    border: '1px solid #fde68a', background: '#fffbeb', color: '#d97706',
-  }}>
-    💰 Điều chỉnh
-  </button>
-</Td>
+                      <button onClick={() => {
+                        setAdjustVoucher({
+                          voucherCode: v.voucherCode,
+                          holderName: v.holderName,
+                          balance: v.balance,
+                          initialAmount: v.initialAmount,
+                        })
+                        setAdjustAmount('')
+                        setReason('')
+                        setAdjustError('')
+                        setAdjustSuccess('')
+                        setAdjustType('add')
+                      }} style={{
+                            padding: '6px 12px', 
+                            borderRadius: 8, 
+                            fontSize: 12, 
+                            fontWeight: 600, 
+                            cursor: 'pointer',
+                            border: '1px solid #fde68a', 
+                            background: '#fffbeb', 
+                            color: '#d97706',
+                            // Thêm flex để icon và chữ thẳng hàng hoàn hảo
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            transition: 'all 0.15s'
+                          }}
+                          // Hiệu ứng hover nhẹ khi di chuột vào nút
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#fef3c7';
+                            e.currentTarget.style.borderColor = '#fcd34d';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#fffbeb';
+                            e.currentTarget.style.borderColor = '#fde68a';
+                          }}
+                        >
+                          <Coins size={14} strokeWidth={2} />
+                          <span>Điều chỉnh</span>
+                      </button>
+                    </Td>
                   </tr>
                 )
               })}

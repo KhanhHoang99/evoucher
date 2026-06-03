@@ -3,12 +3,23 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+// Import đầy đủ bộ icon hiện đại từ Lucide
+import { 
+  LayoutDashboard, 
+  ReceiptText, 
+  Ticket, 
+  FileBarChart,
+  ChevronLeft,
+  ChevronRight,
+  LogOut
+} from 'lucide-react'
 
+// Mảng menuItems chứa trực tiếp các Component Icon
 const menuItems = [
-  { href: '/viewer/dashboard', icon: '📊', label: 'Dashboard' },
-  { href: '/viewer/transactions', icon: '📋', label: 'Lịch sử giao dịch' },
-  { href: '/viewer/vouchers', icon: '🎫', label: 'Danh sách thẻ' },
-  { href: '/viewer/reports', icon: '📄', label: 'Xuất báo cáo' },
+  { href: '/viewer/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/viewer/transactions', icon: ReceiptText, label: 'Lịch sử giao dịch' },
+  { href: '/viewer/vouchers', icon: Ticket, label: 'Danh sách thẻ' },
+  { href: '/viewer/reports', icon: FileBarChart, label: 'Xuất báo cáo' },
 ]
 
 export default function ViewerLayout({ children }: { children: React.ReactNode }) {
@@ -75,37 +86,45 @@ export default function ViewerLayout({ children }: { children: React.ReactNode }
           </div>
           {!collapsed && (
             <button onClick={() => setCollapsed(true)}
-              style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 16 }}>
-              ◀
+              style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', display: 'flex', alignItems: 'center' }}>
+              <ChevronLeft size={18} />
             </button>
           )}
         </div>
 
+        {/* Nút mở rộng khi collapsed */}
         {collapsed && (
           <button onClick={() => setCollapsed(false)}
-            style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', fontSize: 16, padding: '8px 0' }}>
-            ▶
+            style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#999', padding: '12px 0', display: 'flex', justifyContent: 'center' }}>
+            <ChevronRight size={18} />
           </button>
         )}
 
-        {/* Menu */}
+        {/* Menu danh sách */}
         <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
           {menuItems.map((item) => {
             const isActive = pathname === item.href
+            const IconComponent = item.icon // Gán vào biến viết hoa để render dạng JSX Component
+            
             return (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 12, // Tăng nhẹ khoảng cách icon và text cho thoáng mắt
                   padding: collapsed ? '10px' : '10px 12px',
-                  borderRadius: 10, marginBottom: 4,
+                  borderRadius: 10, 
+                  marginBottom: 4,
                   background: isActive ? '#eff6ff' : 'transparent',
                   color: isActive ? '#2563eb' : '#555',
                   fontWeight: isActive ? 600 : 400,
-                  fontSize: 14, cursor: 'pointer',
+                  fontSize: 14, 
+                  cursor: 'pointer',
                   justifyContent: collapsed ? 'center' : 'flex-start',
                   transition: 'all 0.15s',
                 }}>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
+                  {/* Icon thông minh tự đổi độ dày nét vẽ dựa theo trạng thái active */}
+                  <IconComponent size={18} strokeWidth={isActive ? 2.2 : 1.8} style={{ flexShrink: 0 }} />
                   {!collapsed && <span>{item.label}</span>}
                 </div>
               </Link>
@@ -113,12 +132,12 @@ export default function ViewerLayout({ children }: { children: React.ReactNode }
           })}
         </nav>
 
-        {/* User + logout */}
+        {/* Thông tin User và nút Đăng xuất */}
         <div style={{ padding: '16px', borderTop: '1px solid #eee' }}>
           {!collapsed && user && (
-            <div style={{ marginBottom: 10 }}>
+            <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{user.username}</div>
-              <div style={{ fontSize: 11, color: '#999' }}>
+              <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
                 {user.role === 'ADMIN' ? 'Quản trị viên' : 'Kế toán / Giám đốc'}
               </div>
             </div>
@@ -131,8 +150,9 @@ export default function ViewerLayout({ children }: { children: React.ReactNode }
             display: 'flex', alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'flex-start',
             gap: 8,
+            transition: 'background 0.2s',
           }}>
-            <span>🚪</span>
+            <LogOut size={16} strokeWidth={1.8} />
             {!collapsed && <span>Đăng xuất</span>}
           </button>
         </div>

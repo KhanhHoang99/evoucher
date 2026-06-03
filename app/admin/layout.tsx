@@ -14,7 +14,8 @@ import {
   Handshake,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileBarChart
 } from 'lucide-react'
 
 // Cấu trúc lại menuItems, chuyển icon từ chuỗi Emoji sang Component Lucide
@@ -26,7 +27,7 @@ const menuItems = [
   { href: '/admin/stores', icon: Store, label: 'Quản Lý Cửa Hàng' },
   { href: '/admin/users', icon: Users, label: 'Quản Lý User' },
   { href: '/admin/partners', icon: Handshake, label: 'Quản Lý Partner' },
-  { href: '/viewer/reports', icon: '📄', label: 'Xuất báo cáo' }
+  { href: '/viewer/reports', icon: FileBarChart, label: 'Xuất báo cáo' }
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

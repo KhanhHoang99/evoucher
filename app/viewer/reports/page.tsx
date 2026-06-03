@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
+import { Handshake, Store } from 'lucide-react'
 
 // Interface partner
 interface Partner {
@@ -336,21 +337,50 @@ export default function ViewerReportsPage() {
 
       {/* Tab chọn loại báo cáo */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-        <button onClick={() => setActiveTab('partner')} style={{
-          padding: '10px 24px', borderRadius: 10, fontWeight: 600, fontSize: 14,
-          border: 'none', cursor: 'pointer',
-          background: activeTab === 'partner' ? '#2563eb' : '#f5f5f5',
-          color: activeTab === 'partner' ? 'white' : '#555',
-        }}>
-          🤝 Theo đối tác
+        {/* Tab Theo đối tác */}
+        <button 
+          onClick={() => setActiveTab('partner')} 
+          style={{
+            padding: '10px 24px', 
+            borderRadius: 10, 
+            fontWeight: 600, 
+            fontSize: 14,
+            border: 'none', 
+            cursor: 'pointer',
+            background: activeTab === 'partner' ? '#2563eb' : '#f5f5f5',
+            color: activeTab === 'partner' ? 'white' : '#555',
+            // Kích hoạt flex để căn chỉnh icon và chữ thẳng hàng
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            transition: 'all 0.15s',
+          }}
+        >
+          <Handshake size={16} strokeWidth={activeTab === 'partner' ? 2.2 : 1.8} />
+          <span>Theo đối tác</span>
         </button>
-        <button onClick={() => setActiveTab('store')} style={{
-          padding: '10px 24px', borderRadius: 10, fontWeight: 600, fontSize: 14,
-          border: 'none', cursor: 'pointer',
-          background: activeTab === 'store' ? '#2563eb' : '#f5f5f5',
-          color: activeTab === 'store' ? 'white' : '#555',
-        }}>
-          🏪 Theo cửa hàng
+
+        {/* Tab Theo cửa hàng */}
+        <button 
+          onClick={() => setActiveTab('store')} 
+          style={{
+            padding: '10px 24px', 
+            borderRadius: 10, 
+            fontWeight: 600, 
+            fontSize: 14,
+            border: 'none', 
+            cursor: 'pointer',
+            background: activeTab === 'store' ? '#2563eb' : '#f5f5f5',
+            color: activeTab === 'store' ? 'white' : '#555',
+            // Kích hoạt flex để căn chỉnh icon và chữ thẳng hàng
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            transition: 'all 0.15s',
+          }}
+        >
+          <Store size={16} strokeWidth={activeTab === 'store' ? 2.2 : 1.8} />
+          <span>Theo cửa hàng</span>
         </button>
       </div>
 
@@ -387,10 +417,10 @@ export default function ViewerReportsPage() {
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={handlePartnerPreview} disabled={loading || !selectedPartner} style={btnPreview}>
-                {loading ? 'Đang tải...' : '👁 Xem trước'}
+                {loading ? 'Đang tải...' : ' Xem trước'}
               </button>
               <button onClick={handleExportPartner} disabled={loading || !selectedPartner} style={btnExport}>
-                {loading ? 'Đang xử lý...' : '📥 Xuất Excel'}
+                {loading ? 'Đang xử lý...' : 'Xuất Excel'}
               </button>
             </div>
           </div>
@@ -495,10 +525,10 @@ export default function ViewerReportsPage() {
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={handleStorePreview} disabled={loading} style={btnPreview}>
-                {loading ? 'Đang tải...' : '👁 Xem trước'}
+                {loading ? 'Đang tải...' : ' Xem trước'}
               </button>
               <button onClick={handleExportStore} disabled={loading} style={btnExport}>
-                {loading ? 'Đang xử lý...' : '📥 Xuất Excel'}
+                {loading ? 'Đang xử lý...' : ' Xuất Excel'}
               </button>
             </div>
           </div>

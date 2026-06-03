@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { UserRoundPen, KeyRound, UserX, UserCheck } from 'lucide-react'
 
 interface User {
   id: string
@@ -335,24 +336,88 @@ export default function UsersPage() {
                   </Td>
                   <Td>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button onClick={() => {
-                        setEditUser(user)
-                        setEditForm({ userRole: user.role, storeId: user.store ? stores.find(s => s.name === user.store?.name)?.id || '' : '' })
-                        setEditError('')
-                      }} style={btnEdit}>
-                        ✏️ Sửa
+                      {/* Nút Sửa */}
+                      <button 
+                        onClick={() => {
+                          setEditUser(user)
+                          setEditForm({ 
+                            userRole: user.role, 
+                            storeId: user.store ? stores.find(s => s.name === user.store?.name)?.id || '' : '' 
+                          })
+                          setEditError('')
+                        }} 
+                        style={{
+                          ...btnEdit, // Giữ các style cũ từ biến btnEdit của bạn
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        <UserRoundPen size={13} strokeWidth={2} />
+                        <span>Sửa</span>
                       </button>
-                      <button onClick={() => { setResetUser(user); setNewPassword(''); setResetError('') }}
-                        style={btnReset}>
-                        🔑 Mật khẩu
+
+                      {/* Nút Mật khẩu */}
+                      <button 
+                        onClick={() => { 
+                          setResetUser(user)
+                          setNewPassword('') 
+                          setResetError('') 
+                        }}
+                        style={{
+                          ...btnReset, // Giữ các style cũ từ biến btnReset của bạn
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        <KeyRound size={13} strokeWidth={2} />
+                        <span>Mật khẩu</span>
                       </button>
-                      <button onClick={() => toggleActive(user)} style={{
-                        padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                        border: '1px solid ' + (user.isActive ? '#fca5a5' : '#86efac'),
-                        background: user.isActive ? '#fef2f2' : '#f0fdf4',
-                        color: user.isActive ? '#dc2626' : '#16a34a',
-                      }}>
-                        {user.isActive ? 'Khóa' : 'Mở'}
+
+                      {/* Nút Khóa / Mở */}
+                      <button 
+                        onClick={() => toggleActive(user)} 
+                        style={{
+                          padding: '6px 12px', 
+                          borderRadius: 8, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          cursor: 'pointer',
+                          border: '1px solid ' + (user.isActive ? '#fca5a5' : '#86efac'),
+                          background: user.isActive ? '#fef2f2' : '#f0fdf4',
+                          color: user.isActive ? '#dc2626' : '#16a34a',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          transition: 'all 0.15s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (user.isActive) {
+                            e.currentTarget.style.background = '#fee2e2';
+                          } else {
+                            e.currentTarget.style.background = '#dcfce7';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (user.isActive) {
+                            e.currentTarget.style.background = '#fef2f2';
+                          } else {
+                            e.currentTarget.style.background = '#f0fdf4';
+                          }
+                        }}
+                      >
+                        {user.isActive ? (
+                          <>
+                            <UserX size={13} strokeWidth={2} />
+                            <span>Khóa</span>
+                          </>
+                        ) : (
+                          <>
+                            <UserCheck size={13} strokeWidth={2} />
+                            <span>Mở</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </Td>

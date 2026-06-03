@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Pencil, Lock, Unlock } from 'lucide-react'
 
 interface Store {
   id: string
@@ -236,27 +237,92 @@ export default function StoresPage() {
                     {new Date(store.createdAt).toLocaleDateString('vi-VN')}
                   </Td>
                   <Td>
-  <div style={{ display: 'flex', gap: 6 }}>
-    <button onClick={() => {
-      setEditStore(store)
-      setEditForm({ name: store.name, location: store.location || '' })
-      setEditError('')
-    }} style={{
-      padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-      border: '1px solid #bfdbfe', background: '#eff6ff', color: '#2563eb',
-    }}>
-      ✏️ Sửa
-    </button>
-    <button onClick={() => toggleActive(store)} style={{
-      padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-      border: '1px solid ' + (store.isActive ? '#fca5a5' : '#86efac'),
-      background: store.isActive ? '#fef2f2' : '#f0fdf4',
-      color: store.isActive ? '#dc2626' : '#16a34a',
-    }}>
-      {store.isActive ? 'Khóa' : 'Mở khóa'}
-    </button>
-  </div>
-</Td>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {/* Nút Sửa */}
+                      <button 
+                        onClick={() => {
+                          setEditStore(store)
+                          setEditForm({ name: store.name, location: store.location || '' })
+                          setEditError('')
+                        }} 
+                        style={{
+                          padding: '6px 12px', 
+                          borderRadius: 8, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          cursor: 'pointer',
+                          border: '1px solid #bfdbfe', 
+                          background: '#eff6ff', 
+                          color: '#2563eb',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          transition: 'all 0.15s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#dbeafe';
+                          e.currentTarget.style.borderColor = '#93c5fd';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#eff6ff';
+                          e.currentTarget.style.borderColor = '#bfdbfe';
+                        }}
+                      >
+                        <Pencil size={13} strokeWidth={2} />
+                        <span>Sửa</span>
+                      </button>
+
+                      {/* Nút Khóa / Mở khóa */}
+                      <button 
+                        onClick={() => toggleActive(store)} 
+                        style={{
+                          padding: '6px 12px', 
+                          borderRadius: 8, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          cursor: 'pointer',
+                          border: '1px solid ' + (store.isActive ? '#fca5a5' : '#86efac'),
+                          background: store.isActive ? '#fef2f2' : '#f0fdf4',
+                          color: store.isActive ? '#dc2626' : '#16a34a',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          transition: 'all 0.15s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (store.isActive) {
+                            e.currentTarget.style.background = '#fee2e2';
+                            e.currentTarget.style.borderColor = '#fca5a5';
+                          } else {
+                            e.currentTarget.style.background = '#dcfce7';
+                            e.currentTarget.style.borderColor = '#86efac';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (store.isActive) {
+                            e.currentTarget.style.background = '#fef2f2';
+                            e.currentTarget.style.borderColor = '#fca5a5';
+                          } else {
+                            e.currentTarget.style.background = '#f0fdf4';
+                            e.currentTarget.style.borderColor = '#86efac';
+                          }
+                        }}
+                      >
+                        {/* Render icon động dựa trên trạng thái của Store */}
+                        {store.isActive ? (
+                          <>
+                            <Lock size={13} strokeWidth={2} />
+                            <span>Khóa</span>
+                          </>
+                        ) : (
+                          <>
+                            <Unlock size={13} strokeWidth={2} />
+                            <span>Mở khóa</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </Td>
                   
                 </tr>
               ))}

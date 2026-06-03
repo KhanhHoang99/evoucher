@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Coins, CreditCard } from 'lucide-react'
 
 // Interface định nghĩa cấu trúc dữ liệu giao dịch
 interface Transaction {
@@ -253,9 +254,26 @@ export default function ViewerTransactionsPage() {
                     <span style={{
                       background: tx.type === 'ADJUSTMENT' ? '#fffbeb' : '#f0fdf4',
                       color: tx.type === 'ADJUSTMENT' ? '#d97706' : '#16a34a',
-                      padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                      padding: '4px 8px', // Tăng nhẹ lên 4px nhìn cái nhãn sẽ cân đối hơn
+                      borderRadius: 6, 
+                      fontSize: 12, 
+                      fontWeight: 600,
+                      // Kích hoạt flex để icon và chữ thẳng hàng hoàn hảo
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
                     }}>
-                      {tx.type === 'ADJUSTMENT' ? '💰 Điều chỉnh' : '💳 Thanh toán'}
+                      {tx.type === 'ADJUSTMENT' ? (
+                        <>
+                          <Coins size={14} strokeWidth={2} style={{ flexShrink: 0 }} />
+                          <span>Điều chỉnh</span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard size={14} strokeWidth={2} style={{ flexShrink: 0 }} />
+                          <span>Thanh toán</span>
+                        </>
+                      )}
                     </span>
                   </Td>
                   <Td style={{ color: '#666', fontSize: 12 }}>{tx.reason || '—'}</Td>
