@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: evoucher_db
+    restart: always
+    environment:
+      POSTGRES_USER: evoucher_user
+      POSTGRES_PASSWORD: evoucher_pass
+      POSTGRES_DB: evoucher_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evoucher_user -d evoucher_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evoucher_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://evoucher_user:evoucher_pass@postgres:5432/evoucher_db
+      JWT_SECRET: evoucher_super_secret_key_2024_change_this_in_production
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

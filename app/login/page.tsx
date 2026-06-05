@@ -120,7 +120,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          © 2026 BQ — Hệ thống quản lý thẻ nội bộ
+          © 2026 BQ — eVoucher
         </p>
       </div>
     </div>
