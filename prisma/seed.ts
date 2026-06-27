@@ -25,36 +25,6 @@ async function main() {
 
 
 
- // Store mẫu
-  const store = await prisma.store.upsert({
-    where: { storeCode: "CH57" },
-    update: {},
-    create: {
-      id: "00000000-0000-0000-0000-000000000002",
-      storeCode: "CH57",
-      name: "Cửa hàng 57 Lê Duẩn",
-      location: "Đà Nẵng",
-      isActive: true,
-    },
-  });
-  console.log("✅ Store:", store.name);
-
-  // Cashier mẫu
-  const cashierHash = await bcrypt.hash("57leduan", 10);
-  const cashier = await prisma.user.upsert({
-    where: { username: "ch57" },
-    update: {},
-    create: {
-      username: "ch57",
-      passwordHash: cashierHash,
-      role: "CASHIER",
-      isActive: true,
-      storeId: "00000000-0000-0000-0000-000000000002",
-    },
-  });
-  console.log("✅ Cashier:", cashier.username);
-
-
   // Partner mẫu
   const partner = await prisma.partner.upsert({
     where: { id: "00000000-0000-0000-0000-000000000001" },

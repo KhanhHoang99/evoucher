@@ -80,21 +80,19 @@ async function main() {
       const voucherCode = String(row.VoucherId || row.voucherid || "").trim();
       if (!voucherCode) { voucherError++; continue; }
 
-      // Bỏ qua nếu đã tồn tại
       const existing = await prisma.voucher.findUnique({
         where: { voucherCode },
       });
       if (existing) { voucherSkipped++; continue; }
 
-      // Parse ngày hết hạn — format MM/DD/YYYY
       const expiryStr = String(row.Expiry || row.expiry || "").trim();
       let expiresAt: Date;
       const parts = expiryStr.split("/");
       if (parts.length === 3) {
         expiresAt = new Date(
-          parseInt(parts[2]),      // year
-          parseInt(parts[0]) - 1, // month (MM-1)
-          parseInt(parts[1]),      // day
+          parseInt(parts[2]),
+          parseInt(parts[0]) - 1,
+          parseInt(parts[1]),
           23, 59, 59
         );
       } else {
@@ -108,20 +106,16 @@ async function main() {
       }
 
       const cash = parseInt(row.Cash || row.cash || "0") || 0;
-      const balanceRaw = row.Balance || row.balance;
-      const balance = (balanceRaw && balanceRaw !== "NULL" && balanceRaw !== "")
-        ? parseInt(balanceRaw)
-        : cash;
-
       const phone = row.Phone || row.phone || "";
 
+      // Luôn dùng initialAmount làm balance ban đầu — bước 5 sẽ tính lại đúng
       await prisma.voucher.create({
         data: {
           voucherCode,
           holderName: String(row.Name || row.name || "Không rõ").trim(),
           holderPhone: phone.trim() || null,
           initialAmount: cash,
-          balance,
+          balance: cash, // <-- luôn = initialAmount, bước 5 sẽ tính lại
           status: "ACTIVE",
           expiresAt,
           partnerId: partner.id,
@@ -153,7 +147,6 @@ async function main() {
     trim: true,
   }) as Record<string, string>[];
 
-  // Load initialAmount của tất cả vouchers để tính balance
   const allVouchers = await prisma.voucher.findMany({
     select: { id: true, voucherCode: true, initialAmount: true }
   });
@@ -162,7 +155,6 @@ async function main() {
     voucherMap[v.voucherCode] = { id: v.id, initialAmount: v.initialAmount };
   }
 
-  // Group orders theo VoucherId, sort theo Time
   const ordersByVoucher: Record<string, any[]> = {};
   for (const order of orders) {
     const code = String(order.VoucherId || order.voucherid || "").trim();
@@ -170,7 +162,6 @@ async function main() {
     ordersByVoucher[code].push(order);
   }
 
-  // Sort theo thời gian trong mỗi nhóm
   for (const code of Object.keys(ordersByVoucher)) {
     ordersByVoucher[code].sort((a, b) => {
       return parseTime(a.Time || a.time) - parseTime(b.Time || b.time);
@@ -209,7 +200,6 @@ async function main() {
           continue;
         }
 
-        // Parse thời gian — format DD/MM/YYYY HH:MM:SS
         const timeStr = String(order.Time || order.time || "").trim();
         const createdAt = parseDateTime(timeStr);
 
@@ -254,6 +244,32 @@ async function main() {
     errorLogs.forEach(e => console.log(`   - ${e}`));
   }
 
+  // ==========================================
+  // BƯỚC 5: Tính lại balance từ transactions
+  // ==========================================
+  console.log("💰 Bước 5: Tính lại balance từ transactions...");
+
+  const vouchersToUpdate = await prisma.voucher.findMany({
+    select: {
+      id: true,
+      initialAmount: true,
+      transactions: {
+        where: { type: "PAYMENT" },
+        select: { amount: true }
+      }
+    }
+  });
+
+  for (const v of vouchersToUpdate) {
+    const totalSpent = v.transactions.reduce((sum, t) => sum + t.amount, 0);
+    const newBalance = v.initialAmount - totalSpent;
+    await prisma.voucher.update({
+      where: { id: v.id },
+      data: { balance: newBalance }
+    });
+  }
+  console.log(`✅ Đã tính lại balance cho ${vouchersToUpdate.length} vouchers\n`);
+
   console.log("\n🎉 Migrate hoàn tất!");
 }
 
@@ -271,7 +287,6 @@ function parseDateTime(str: string): Date {
   return new Date(str);
 }
 
-// Trả về timestamp để sort
 function parseTime(str: string): number {
   return parseDateTime(str).getTime();
 }
