@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Coins } from 'lucide-react'
+import { Coins, Trash2 } from 'lucide-react'
 
 interface Voucher {
   id: string
@@ -28,6 +28,12 @@ interface AdjustForm {
   initialAmount: number
 }
 
+interface DeleteTarget {
+  id: string
+  voucherCode: string
+  holderName: string
+}
+
 export default function VouchersPage() {
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [partners, setPartners] = useState<Partner[]>([])
@@ -46,6 +52,12 @@ export default function VouchersPage() {
   const [adjustSaving, setAdjustSaving] = useState(false)
   const [adjustError, setAdjustError] = useState('')
   const [adjustSuccess, setAdjustSuccess] = useState('')
+
+  // Delete state
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => { fetchPartners() }, [])
   useEffect(() => { fetchVouchers() }, [page, partnerId, status])
@@ -114,6 +126,27 @@ export default function VouchersPage() {
     }
   }
 
+  async function handleDelete() {
+    if (!deleteTarget || deleteConfirmText !== 'XÓA') return
+    setDeleteLoading(true)
+    setDeleteError('')
+    try {
+      const res = await fetch(`/api/vouchers/${deleteTarget.voucherCode}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${getToken()}` },
+      })
+      const data = await res.json()
+      if (!res.ok) { setDeleteError(data.error); return }
+      setDeleteTarget(null)
+      setDeleteConfirmText('')
+      fetchVouchers()
+    } catch {
+      setDeleteError('Lỗi kết nối server')
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
   function formatMoney(n: number) {
     return n.toLocaleString('vi-VN') + 'đ'
   }
@@ -138,121 +171,204 @@ export default function VouchersPage() {
       </div>
 
       {/* Modal điều chỉnh số dư */}
-{adjustVoucher && (
-  <div style={{
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
-  }}>
-    <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 460, width: '90%' }}>
-      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
-        Điều chỉnh số dư thẻ
-      </h3>
-      <p style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>
-        {adjustVoucher.voucherCode} — {adjustVoucher.holderName}
-      </p>
+      {adjustVoucher && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+        }}>
+          <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 460, width: '90%' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
+              Điều chỉnh số dư thẻ
+            </h3>
+            <p style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>
+              {adjustVoucher.voucherCode} — {adjustVoucher.holderName}
+            </p>
 
-      {/* Số dư hiện tại */}
-      <div style={{ background: '#f8f7f5', borderRadius: 12, padding: 16, marginBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, color: '#999' }}>Số dư hiện tại</span>
-          <span style={{ fontSize: 16, fontWeight: 700, color: '#E8440A' }}>
-            {adjustVoucher.balance.toLocaleString('vi-VN')}đ
-          </span>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-          <span style={{ fontSize: 13, color: '#999' }}>Giá trị ban đầu</span>
-          <span style={{ fontSize: 13, color: '#666' }}>
-            {adjustVoucher.initialAmount.toLocaleString('vi-VN')}đ
-          </span>
-        </div>
-      </div>
+            <div style={{ background: '#f8f7f5', borderRadius: 12, padding: 16, marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 13, color: '#999' }}>Số dư hiện tại</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#E8440A' }}>
+                  {adjustVoucher.balance.toLocaleString('vi-VN')}đ
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+                <span style={{ fontSize: 13, color: '#999' }}>Giá trị ban đầu</span>
+                <span style={{ fontSize: 13, color: '#666' }}>
+                  {adjustVoucher.initialAmount.toLocaleString('vi-VN')}đ
+                </span>
+              </div>
+            </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {/* Loại điều chỉnh */}
-        <div>
-          <label style={labelStyle}>Loại điều chỉnh</label>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => setAdjustType('add')} style={{
-              flex: 1, padding: '10px', borderRadius: 10, fontWeight: 600, fontSize: 13,
-              border: '2px solid ' + (adjustType === 'add' ? '#16a34a' : '#eee'),
-              background: adjustType === 'add' ? '#f0fdf4' : 'white',
-              color: adjustType === 'add' ? '#16a34a' : '#666',
-              cursor: 'pointer',
-            }}>
-              ➕ Hoàn tiền (cộng thêm)
-            </button>
-            <button onClick={() => setAdjustType('subtract')} style={{
-              flex: 1, padding: '10px', borderRadius: 10, fontWeight: 600, fontSize: 13,
-              border: '2px solid ' + (adjustType === 'subtract' ? '#dc2626' : '#eee'),
-              background: adjustType === 'subtract' ? '#fef2f2' : 'white',
-              color: adjustType === 'subtract' ? '#dc2626' : '#666',
-              cursor: 'pointer',
-            }}>
-              ➖ Trừ thêm
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={labelStyle}>Loại điều chỉnh</label>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => setAdjustType('add')} style={{
+                    flex: 1, padding: '10px', borderRadius: 10, fontWeight: 600, fontSize: 13,
+                    border: '2px solid ' + (adjustType === 'add' ? '#16a34a' : '#eee'),
+                    background: adjustType === 'add' ? '#f0fdf4' : 'white',
+                    color: adjustType === 'add' ? '#16a34a' : '#666', cursor: 'pointer',
+                  }}>➕ Hoàn tiền (cộng thêm)</button>
+                  <button onClick={() => setAdjustType('subtract')} style={{
+                    flex: 1, padding: '10px', borderRadius: 10, fontWeight: 600, fontSize: 13,
+                    border: '2px solid ' + (adjustType === 'subtract' ? '#dc2626' : '#eee'),
+                    background: adjustType === 'subtract' ? '#fef2f2' : 'white',
+                    color: adjustType === 'subtract' ? '#dc2626' : '#666', cursor: 'pointer',
+                  }}>➖ Trừ thêm</button>
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Số tiền điều chỉnh</label>
+                <input
+                  value={adjustAmount}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/\D/g, '')
+                    setAdjustAmount(raw ? parseInt(raw).toLocaleString('vi-VN') : '')
+                  }}
+                  placeholder="Nhập số tiền..."
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Lý do điều chỉnh <span style={{ color: '#E8440A' }}>*</span></label>
+                <input
+                  value={reason}
+                  onChange={e => setReason(e.target.value)}
+                  placeholder="VD: Hoàn tiền do thu nhầm ngày 30/5 tại CH57"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            {adjustError && (
+              <div style={{ background: '#fff1f0', color: '#cf1322', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 12 }}>
+                ⚠️ {adjustError}
+              </div>
+            )}
+            {adjustSuccess && (
+              <div style={{ background: '#f0fdf4', color: '#16a34a', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 12, fontWeight: 600 }}>
+                {adjustSuccess}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <button onClick={handleAdjust} disabled={adjustSaving} style={{
+                flex: 1, padding: '12px', borderRadius: 10, border: 'none',
+                background: '#E8440A', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: 14,
+              }}>
+                {adjustSaving ? 'Đang xử lý...' : 'Xác nhận điều chỉnh'}
+              </button>
+              <button onClick={() => {
+                setAdjustVoucher(null)
+                setAdjustAmount('')
+                setReason('')
+                setAdjustError('')
+              }} style={{
+                padding: '12px 20px', borderRadius: 10, border: '1px solid #eee',
+                background: 'white', color: '#666', fontWeight: 600, cursor: 'pointer',
+              }}>Hủy</button>
+            </div>
           </div>
         </div>
-
-        {/* Số tiền */}
-        <div>
-          <label style={labelStyle}>Số tiền điều chỉnh</label>
-          <input
-            value={adjustAmount}
-            onChange={e => {
-              const raw = e.target.value.replace(/\D/g, '')
-              setAdjustAmount(raw ? parseInt(raw).toLocaleString('vi-VN') : '')
-            }}
-            placeholder="Nhập số tiền..."
-            style={inputStyle}
-          />
-        </div>
-
-        {/* Lý do — bắt buộc */}
-        <div>
-          <label style={labelStyle}>Lý do điều chỉnh <span style={{ color: '#E8440A' }}>*</span></label>
-          <input
-            value={reason}
-            onChange={e => setReason(e.target.value)}
-            placeholder="VD: Hoàn tiền do thu nhầm ngày 30/5 tại CH57"
-            style={inputStyle}
-          />
-        </div>
-      </div>
-
-      {adjustError && (
-        <div style={{ background: '#fff1f0', color: '#cf1322', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 12 }}>
-          ⚠️ {adjustError}
-        </div>
-      )}
-      {adjustSuccess && (
-        <div style={{ background: '#f0fdf4', color: '#16a34a', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 12, fontWeight: 600 }}>
-          {adjustSuccess}
-        </div>
       )}
 
-      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-        <button onClick={handleAdjust} disabled={adjustSaving} style={{
-          flex: 1, padding: '12px', borderRadius: 10, border: 'none',
-          background: '#E8440A', color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: 14,
+      {/* Modal xóa thẻ */}
+      {deleteTarget && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
         }}>
-          {adjustSaving ? 'Đang xử lý...' : 'Xác nhận điều chỉnh'}
-        </button>
-        <button onClick={() => {
-          setAdjustVoucher(null)
-          setAdjustAmount('')
-          setReason('')
-          setAdjustError('')
-        }} style={{
-          padding: '12px 20px', borderRadius: 10, border: '1px solid #eee',
-          background: 'white', color: '#666', fontWeight: 600, cursor: 'pointer',
-        }}>
-          Hủy
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 440, width: '90%' }}>
+            {/* Icon cảnh báo */}
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%',
+                background: '#fef2f2', display: 'inline-flex',
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Trash2 size={24} color="#dc2626" />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: 18, fontWeight: 700, textAlign: 'center', marginBottom: 8 }}>
+              Xóa thẻ này?
+            </h3>
+            <p style={{ fontSize: 13, color: '#666', textAlign: 'center', marginBottom: 20 }}>
+              Thao tác này sẽ xóa vĩnh viễn thẻ và toàn bộ lịch sử giao dịch liên quan. Không thể hoàn tác.
+            </p>
+
+           {/* Thông tin thẻ */}
+          <div style={{ background: '#fef2f2', borderRadius: 12, padding: 14, marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: 12, color: '#999', marginBottom: 2 }}>Mã thẻ</div>
+              <div style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 15 }}>{deleteTarget.voucherCode}</div>
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 12, color: '#999', marginBottom: 2 }}>Chủ thẻ</div>
+              <div style={{ fontWeight: 600 }}>{deleteTarget.holderName}</div>
+            </div>
+          </div>
+
+            {/* Ô xác nhận gõ XÓA */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, color: '#444', marginBottom: 8 }}>
+                Gõ <strong style={{ color: '#dc2626' }}>XÓA</strong> để xác nhận
+              </label>
+              <input
+                value={deleteConfirmText}
+                onChange={e => setDeleteConfirmText(e.target.value)}
+                placeholder='Nhập "XÓA"'
+                style={{
+                  ...inputStyle,
+                  border: deleteConfirmText === 'XÓA' ? '2px solid #dc2626' : '2px solid #eee',
+                }}
+                autoFocus
+              />
+            </div>
+
+            {deleteError && (
+              <div style={{ background: '#fff1f0', color: '#cf1322', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: 12 }}>
+                ⚠️ {deleteError}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => {
+                  setDeleteTarget(null)
+                  setDeleteConfirmText('')
+                  setDeleteError('')
+                }}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: 10,
+                  border: '1px solid #eee', background: 'white',
+                  color: '#666', fontWeight: 600, cursor: 'pointer', fontSize: 14,
+                }}
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteConfirmText !== 'XÓA' || deleteLoading}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: 10, border: 'none',
+                  background: deleteConfirmText === 'XÓA' ? '#dc2626' : '#f5f5f5',
+                  color: deleteConfirmText === 'XÓA' ? 'white' : '#bbb',
+                  fontWeight: 700, fontSize: 14,
+                  cursor: deleteConfirmText === 'XÓA' ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {deleteLoading ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bộ lọc */}
       <div style={{
@@ -355,46 +471,51 @@ export default function VouchersPage() {
                       </span>
                     </Td>
                     <Td>
-                      <button onClick={() => {
-                        setAdjustVoucher({
-                          voucherCode: v.voucherCode,
-                          holderName: v.holderName,
-                          balance: v.balance,
-                          initialAmount: v.initialAmount,
-                        })
-                        setAdjustAmount('')
-                        setReason('')
-                        setAdjustError('')
-                        setAdjustSuccess('')
-                        setAdjustType('add')
-                      }} style={{
-                            padding: '6px 12px', 
-                            borderRadius: 8, 
-                            fontSize: 12, 
-                            fontWeight: 600, 
-                            cursor: 'pointer',
-                            border: '1px solid #fde68a', 
-                            background: '#fffbeb', 
-                            color: '#d97706',
-                            // Thêm flex để icon và chữ thẳng hàng hoàn hảo
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            transition: 'all 0.15s'
-                          }}
-                          // Hiệu ứng hover nhẹ khi di chuột vào nút
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#fef3c7';
-                            e.currentTarget.style.borderColor = '#fcd34d';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#fffbeb';
-                            e.currentTarget.style.borderColor = '#fde68a';
-                          }}
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {/* Nút Điều chỉnh */}
+                        <button onClick={() => {
+                          setAdjustVoucher({
+                            voucherCode: v.voucherCode,
+                            holderName: v.holderName,
+                            balance: v.balance,
+                            initialAmount: v.initialAmount,
+                          })
+                          setAdjustAmount('')
+                          setReason('')
+                          setAdjustError('')
+                          setAdjustSuccess('')
+                          setAdjustType('add')
+                        }} style={{
+                          padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                          cursor: 'pointer', border: '1px solid #fde68a',
+                          background: '#fffbeb', color: '#d97706',
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                        }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#fef3c7'; e.currentTarget.style.borderColor = '#fcd34d' }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#fffbeb'; e.currentTarget.style.borderColor = '#fde68a' }}
                         >
                           <Coins size={14} strokeWidth={2} />
                           <span>Điều chỉnh</span>
-                      </button>
+                        </button>
+
+                        {/* Nút Xóa */}
+                        <button onClick={() => {
+                          setDeleteTarget({ id: v.id, voucherCode: v.voucherCode, holderName: v.holderName })
+                          setDeleteConfirmText('')
+                          setDeleteError('')
+                        }} style={{
+                          padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                          cursor: 'pointer', border: '1px solid #fecaca',
+                          background: '#fef2f2', color: '#dc2626',
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                        }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#fca5a5' }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fecaca' }}
+                        >
+                          <Trash2 size={14} strokeWidth={2} />
+                          <span>Xóa</span>
+                        </button>
+                      </div>
                     </Td>
                   </tr>
                 )
