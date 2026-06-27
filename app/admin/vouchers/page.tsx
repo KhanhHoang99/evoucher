@@ -59,6 +59,10 @@ export default function VouchersPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState('')
 
+
+  const [lockTarget, setLockTarget] = useState<{ voucherCode: string, holderName: string, currentStatus: string } | null>(null)
+  const [lockLoading, setLockLoading] = useState(false)
+
   useEffect(() => { fetchPartners() }, [])
   useEffect(() => { fetchVouchers() }, [page, partnerId, status])
 
@@ -92,6 +96,7 @@ export default function VouchersPage() {
     const data = await res.json()
     if (res.ok) setPartners(data)
   }
+
 
   async function handleAdjust() {
     if (!adjustVoucher) return
@@ -144,6 +149,26 @@ export default function VouchersPage() {
       setDeleteError('Lỗi kết nối server')
     } finally {
       setDeleteLoading(false)
+    }
+  }
+
+ //handleToggleLock
+  async function handleToggleLock() {
+    if (!lockTarget) return
+    const action = lockTarget.currentStatus === 'DISABLED' ? 'unlock' : 'lock'
+    setLockLoading(true)
+    try {
+      const res = await fetch(`/api/vouchers/${lockTarget.voucherCode}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ action }),
+      })
+      if (res.ok) {
+        setLockTarget(null)
+        fetchVouchers()
+      }
+    } finally {
+      setLockLoading(false)
     }
   }
 
@@ -370,6 +395,65 @@ export default function VouchersPage() {
         </div>
       )}
 
+      {lockTarget && (
+  <div style={{
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+  }}>
+    <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 400, width: '90%' }}>
+      <div style={{ textAlign: 'center', marginBottom: 20 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: '50%',
+          background: lockTarget.currentStatus === 'DISABLED' ? '#f0fdf4' : '#fef9c3',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 24,
+        }}>
+          {lockTarget.currentStatus === 'DISABLED' ? '🔓' : '🔒'}
+        </div>
+      </div>
+
+      <h3 style={{ fontSize: 18, fontWeight: 700, textAlign: 'center', marginBottom: 8 }}>
+        {lockTarget.currentStatus === 'DISABLED' ? 'Mở khóa thẻ?' : 'Khóa thẻ?'}
+      </h3>
+      <p style={{ fontSize: 13, color: '#666', textAlign: 'center', marginBottom: 20 }}>
+        {lockTarget.currentStatus === 'DISABLED'
+          ? 'Thẻ sẽ được kích hoạt lại và có thể sử dụng bình thường.'
+          : 'Thẻ sẽ bị khóa và không thể thanh toán cho đến khi mở khóa.'}
+      </p>
+
+      <div style={{ background: '#f8f7f5', borderRadius: 12, padding: 14, marginBottom: 20, display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: 12, color: '#999', marginBottom: 2 }}>Mã thẻ</div>
+          <div style={{ fontFamily: 'monospace', fontWeight: 700 }}>{lockTarget.voucherCode}</div>
+        </div>
+        <div style={{ textAlign: 'left' }}>
+          <div style={{ fontSize: 12, color: '#999', marginBottom: 2 }}>Chủ thẻ</div>
+          <div style={{ fontWeight: 600 }}>{lockTarget.holderName}</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button onClick={() => setLockTarget(null)} style={{
+          flex: 1, padding: '12px', borderRadius: 10,
+          border: '1px solid #eee', background: 'white',
+          color: '#666', fontWeight: 600, cursor: 'pointer', fontSize: 14,
+        }}>
+          Hủy
+        </button>
+        <button onClick={handleToggleLock} disabled={lockLoading} style={{
+          flex: 1, padding: '12px', borderRadius: 10, border: 'none',
+          background: lockTarget.currentStatus === 'DISABLED' ? '#16a34a' : '#d97706',
+          color: 'white', fontWeight: 700, cursor: 'pointer', fontSize: 14,
+        }}>
+          {lockLoading ? 'Đang xử lý...' : lockTarget.currentStatus === 'DISABLED' ? 'Mở khóa' : 'Khóa thẻ'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
       {/* Bộ lọc */}
       <div style={{
         background: 'white', borderRadius: 16, border: '1px solid #eee',
@@ -496,6 +580,22 @@ export default function VouchersPage() {
                         >
                           <Coins size={14} strokeWidth={2} />
                           <span>Điều chỉnh</span>
+                        </button>
+
+                        {/* Nút Khóa/Mở khóa */}
+                       <button onClick={() => setLockTarget({ 
+                          voucherCode: v.voucherCode, 
+                          holderName: v.holderName, 
+                          currentStatus: v.status 
+                        })} style={{
+                          padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                          cursor: 'pointer',
+                          border: v.status === 'DISABLED' ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
+                          background: v.status === 'DISABLED' ? '#f0fdf4' : '#f8fafc',
+                          color: v.status === 'DISABLED' ? '#16a34a' : '#475569',
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                        }}>
+                          {v.status === 'DISABLED' ? <><span>🔓</span><span>Mở khóa</span></> : <><span>🔒</span><span>Khóa</span></>}
                         </button>
 
                         {/* Nút Xóa */}
